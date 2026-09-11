@@ -1,0 +1,14 @@
+[
+  {
+    "id": "case-01",
+    "jd": "Senior Full-Stack Engineer\n\nWe are looking for a Senior Full-Stack Engineer with 5+ years of experience in TypeScript, Node.js, and React. Must have deep experience building scalable backend microservices, optimizing database performance, and mentoring engineers. Bonus points for familiarity with Docker, AWS, and CI/CD pipelines.",
+    "company_url": "https://example.com",
+    "days": 5
+  },
+  {
+    "id": "case-02",
+    "jd": "Backend Developer\nNeed someone who knows Python and SQL.",
+    "company_url": "https://example.com/stub-firm",
+    "days": 2
+  }
+]

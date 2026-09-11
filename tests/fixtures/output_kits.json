@@ -1,0 +1,335 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-09-10T13:28:32.541Z",
+  "kits": [
+    {
+      "id": "case-01",
+      "status": "ok",
+      "kit": {
+        "source": {
+          "company": "Example Domain",
+          "company_url": "https://example.com",
+          "role": "Software Engineer",
+          "location": "Remote / Unspecified",
+          "jd_chars": 331,
+          "researched_at": "2026-09-10T13:28:32.050Z",
+          "pages_used": [
+            "https://example.com"
+          ]
+        },
+        "company_brief": {
+          "summary": "Technology-driven organization delivering mission-critical web applications and software solutions.",
+          "what_they_do": "Develops digital products and platforms focusing on customer impact, high availability, and developer efficiency.",
+          "sources": [
+            "https://example.com"
+          ]
+        },
+        "role": {
+          "title": "Software Engineer",
+          "seniority": "Mid-Level",
+          "responsibilities": [
+            "Execute software engineering and development duties."
+          ],
+          "requirements": [
+            {
+              "id": "r1",
+              "text": "Senior Full-Stack Engineer\n\nWe are looking for a Senior Full-Stack Engineer with 5+ years of experience in TypeScript, Node.js, and React. Must have deep experience building scalable backend microservices, optimizing database performance, and mentoring engineers. Bonus points for familiarity with Docker, AWS, and CI/CD pipelines.",
+              "kind": "technical",
+              "priority": "must"
+            }
+          ]
+        },
+        "questions": [
+          {
+            "id": "q1",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "technical",
+            "prompt": "How does the Node.js event loop handle asynchronous I/O, and how do you avoid blocking it under high throughput?",
+            "answer_outline": "Explain the libuv thread pool, microtask queue (process.nextTick, Promise), macrotask queue (timers, I/O callbacks), and best practices such as offloading heavy compute to worker threads or background queues.",
+            "difficulty": 2
+          },
+          {
+            "id": "q2",
+            "requirement_ids": [
+              "r2"
+            ],
+            "category": "technical",
+            "prompt": "Compare Next.js Server Components with Client Components. How do you decide where to place stateful logic and data fetching?",
+            "answer_outline": "Discuss zero-bundle-size server components for direct backend querying and SEO versus client components for interactive hooks and event handlers. Explain composition patterns passing server components as children.",
+            "difficulty": 2
+          },
+          {
+            "id": "q3",
+            "requirement_ids": [
+              "r3"
+            ],
+            "category": "system-design",
+            "prompt": "How would you design the data schema and indexing strategy for high-frequency writes vs read-heavy dashboards in MongoDB?",
+            "answer_outline": "Contrast normalized references with embedded documents, compound index ordering, TTL indexes, write concerns (w: majority), and read preferences with replica sets.",
+            "difficulty": 3
+          },
+          {
+            "id": "q4",
+            "requirement_ids": [
+              "r4"
+            ],
+            "category": "behavioural",
+            "prompt": "Describe a time you had a technical disagreement with a teammate regarding system architecture. How did you resolve it?",
+            "answer_outline": "Use the STAR method: Situation (conflicting architecture proposals), Task (reach alignment without slowing delivery), Action (benchmarked trade-offs, documented pros/cons, facilitated proof-of-concept), Result (aligned team and shipped on schedule).",
+            "difficulty": 2
+          },
+          {
+            "id": "q5",
+            "requirement_ids": [
+              "r5"
+            ],
+            "category": "company-fit",
+            "prompt": "How do you ensure deployment reliability and zero-downtime rollouts in a CI/CD pipeline?",
+            "answer_outline": "Cover automated integration tests, Docker multi-stage builds, blue-green or canary deployments, automated health checks, and rollback triggers.",
+            "difficulty": 1
+          }
+        ],
+        "flashcards": [
+          {
+            "id": "f1",
+            "front": "What is the difference between process.nextTick and setImmediate in Node.js?",
+            "back": "process.nextTick fires immediately after the current operation finishes (before event loop phases continue), whereas setImmediate fires in the check phase of the event loop.",
+            "requirement_ids": [
+              "r1"
+            ]
+          },
+          {
+            "id": "f2",
+            "front": "Why are React Server Components beneficial for initial page load?",
+            "back": "They render on the server and send pre-computed HTML without bundling their JavaScript dependencies into the client payload, reducing client-side parse/execution time.",
+            "requirement_ids": [
+              "r2"
+            ]
+          },
+          {
+            "id": "f3",
+            "front": "What is the primary trade-off of MongoDB document embedding vs referencing?",
+            "back": "Embedding provides fast single-query atomic reads but risks exceeding the 16MB BSON limit and data duplication; referencing normalizes data but requires multi-document operations or $lookup joins.",
+            "requirement_ids": [
+              "r3"
+            ]
+          },
+          {
+            "id": "f4",
+            "front": "What are the four components of a strong STAR response?",
+            "back": "Situation (context), Task (your specific challenge/responsibility), Action (the concrete steps YOU took), Result (quantifiable outcome and lessons learned).",
+            "requirement_ids": [
+              "r4"
+            ]
+          }
+        ],
+        "schedule": {
+          "days_available": 5,
+          "days": [
+            {
+              "day": 1,
+              "focus": "Core Must-Haves: Deep Architecture & High-Priority Technical Competencies",
+              "question_ids": [
+                "q1"
+              ],
+              "minutes": 30
+            },
+            {
+              "day": 2,
+              "focus": "System Design, Scalability & Advanced Engineering Deep Dive",
+              "question_ids": [
+                "q3"
+              ],
+              "minutes": 30
+            },
+            {
+              "day": 3,
+              "focus": "Technical Deep Dive: Hands-on Problem Solving & Core Algorithms",
+              "question_ids": [
+                "q2"
+              ],
+              "minutes": 30
+            },
+            {
+              "day": 4,
+              "focus": "Leadership, Behavioral STAR Scenarios & Cross-Functional Collaboration",
+              "question_ids": [
+                "q4"
+              ],
+              "minutes": 30
+            },
+            {
+              "day": 5,
+              "focus": "Final Polish: Behavioral Alignment, Company-Fit & Mock Rehearsal",
+              "question_ids": [
+                "q5"
+              ],
+              "minutes": 30
+            }
+          ]
+        },
+        "coverage": {
+          "uncovered_requirement_ids": [],
+          "passes": 1
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "case-02",
+      "status": "ok",
+      "kit": {
+        "source": {
+          "company": "Example",
+          "company_url": "https://example.com/stub-firm",
+          "role": "Software Engineer",
+          "location": "Remote / Unspecified",
+          "jd_chars": 56,
+          "researched_at": "2026-09-10T13:28:32.399Z",
+          "pages_used": [
+            "https://example.com/stub-firm"
+          ]
+        },
+        "company_brief": {
+          "summary": "The company site at https://example.com/stub-firm was unreachable or returned an error during retrieval.",
+          "what_they_do": "Unable to retrieve live company product or service details from the provided website address.",
+          "sources": [
+            "https://example.com/stub-firm"
+          ]
+        },
+        "role": {
+          "title": "Software Engineer",
+          "seniority": "Mid-Level",
+          "responsibilities": [
+            "Execute software engineering and development duties."
+          ],
+          "requirements": [
+            {
+              "id": "r1",
+              "text": "Backend Developer\nNeed someone who knows Python and SQL.",
+              "kind": "technical",
+              "priority": "must"
+            }
+          ]
+        },
+        "questions": [
+          {
+            "id": "q1",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "technical",
+            "prompt": "How does the Node.js event loop handle asynchronous I/O, and how do you avoid blocking it under high throughput?",
+            "answer_outline": "Explain the libuv thread pool, microtask queue (process.nextTick, Promise), macrotask queue (timers, I/O callbacks), and best practices such as offloading heavy compute to worker threads or background queues.",
+            "difficulty": 2
+          },
+          {
+            "id": "q2",
+            "requirement_ids": [
+              "r2"
+            ],
+            "category": "technical",
+            "prompt": "Compare Next.js Server Components with Client Components. How do you decide where to place stateful logic and data fetching?",
+            "answer_outline": "Discuss zero-bundle-size server components for direct backend querying and SEO versus client components for interactive hooks and event handlers. Explain composition patterns passing server components as children.",
+            "difficulty": 2
+          },
+          {
+            "id": "q3",
+            "requirement_ids": [
+              "r3"
+            ],
+            "category": "system-design",
+            "prompt": "How would you design the data schema and indexing strategy for high-frequency writes vs read-heavy dashboards in MongoDB?",
+            "answer_outline": "Contrast normalized references with embedded documents, compound index ordering, TTL indexes, write concerns (w: majority), and read preferences with replica sets.",
+            "difficulty": 3
+          },
+          {
+            "id": "q4",
+            "requirement_ids": [
+              "r4"
+            ],
+            "category": "behavioural",
+            "prompt": "Describe a time you had a technical disagreement with a teammate regarding system architecture. How did you resolve it?",
+            "answer_outline": "Use the STAR method: Situation (conflicting architecture proposals), Task (reach alignment without slowing delivery), Action (benchmarked trade-offs, documented pros/cons, facilitated proof-of-concept), Result (aligned team and shipped on schedule).",
+            "difficulty": 2
+          },
+          {
+            "id": "q5",
+            "requirement_ids": [
+              "r5"
+            ],
+            "category": "company-fit",
+            "prompt": "How do you ensure deployment reliability and zero-downtime rollouts in a CI/CD pipeline?",
+            "answer_outline": "Cover automated integration tests, Docker multi-stage builds, blue-green or canary deployments, automated health checks, and rollback triggers.",
+            "difficulty": 1
+          }
+        ],
+        "flashcards": [
+          {
+            "id": "f1",
+            "front": "What is the difference between process.nextTick and setImmediate in Node.js?",
+            "back": "process.nextTick fires immediately after the current operation finishes (before event loop phases continue), whereas setImmediate fires in the check phase of the event loop.",
+            "requirement_ids": [
+              "r1"
+            ]
+          },
+          {
+            "id": "f2",
+            "front": "Why are React Server Components beneficial for initial page load?",
+            "back": "They render on the server and send pre-computed HTML without bundling their JavaScript dependencies into the client payload, reducing client-side parse/execution time.",
+            "requirement_ids": [
+              "r2"
+            ]
+          },
+          {
+            "id": "f3",
+            "front": "What is the primary trade-off of MongoDB document embedding vs referencing?",
+            "back": "Embedding provides fast single-query atomic reads but risks exceeding the 16MB BSON limit and data duplication; referencing normalizes data but requires multi-document operations or $lookup joins.",
+            "requirement_ids": [
+              "r3"
+            ]
+          },
+          {
+            "id": "f4",
+            "front": "What are the four components of a strong STAR response?",
+            "back": "Situation (context), Task (your specific challenge/responsibility), Action (the concrete steps YOU took), Result (quantifiable outcome and lessons learned).",
+            "requirement_ids": [
+              "r4"
+            ]
+          }
+        ],
+        "schedule": {
+          "days_available": 2,
+          "days": [
+            {
+              "day": 1,
+              "focus": "Core Must-Haves: Deep Architecture & High-Priority Technical Competencies",
+              "question_ids": [
+                "q1",
+                "q3",
+                "q2"
+              ],
+              "minutes": 61
+            },
+            {
+              "day": 2,
+              "focus": "Final Polish: Behavioral Alignment, Company-Fit & Mock Rehearsal",
+              "question_ids": [
+                "q4",
+                "q5"
+              ],
+              "minutes": 30
+            }
+          ]
+        },
+        "coverage": {
+          "uncovered_requirement_ids": [],
+          "passes": 1
+        }
+      },
+      "error": null
+    }
+  ]
+}
