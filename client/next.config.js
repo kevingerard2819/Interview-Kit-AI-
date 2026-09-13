@@ -1,3 +1,5 @@
+const apiBaseUrl = (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Disable strict mode in dev to prevent double-render/double-effect lag
@@ -17,7 +19,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:5000/api/:path*'
+        destination: `${apiBaseUrl}/:path*`
       }
     ];
   }
