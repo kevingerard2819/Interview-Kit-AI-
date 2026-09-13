@@ -5,7 +5,7 @@ services:
     env: node
     plan: free
     buildCommand: npm install --include=dev && npm run build:server
-    startCommand: node dist/server/src/index.js
+    startCommand: node dist/server/server/src/index.js
     envVars:
       - key: NODE_ENV
         value: production
