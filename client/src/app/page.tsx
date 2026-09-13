@@ -160,7 +160,7 @@ function BatchModal({
   const isRoleComplete = (r: BatchRole) => r.company_url.trim() && r.jd.trim();
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/80 backdrop-blur-md">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/85">
       <div className="w-full sm:max-w-2xl bg-surface border border-surface-border sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col max-h-[90vh]">
         {/* Header */}
         <div className="flex items-center justify-between px-6 pt-6 pb-4 border-b border-surface-border shrink-0">
@@ -415,6 +415,24 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchKits(); }, []);
 
+  // Resume option
+  const [hasResume, setHasResume] = useState(false);
+  const [resumeText, setResumeText] = useState('');
+  const [resumeFileName, setResumeFileName] = useState('');
+  const resumeFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleResumeFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setResumeFileName(file.name);
+    const reader = new FileReader();
+    reader.onload = () => {
+      setResumeText(String(reader.result || ''));
+      setHasResume(true);
+    };
+    reader.readAsText(file);
+  };
+
   const handleGenerate = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!jd.trim() || !companyUrl.trim()) return;
@@ -432,7 +450,9 @@ export default function DashboardPage() {
         jd,
         company_url: companyUrl,
         days: Number(days),
-        custom_rounds: activeCustomRounds && activeCustomRounds.length > 0 ? activeCustomRounds : undefined
+        custom_rounds: activeCustomRounds && activeCustomRounds.length > 0 ? activeCustomRounds : undefined,
+        resume_text: hasResume && resumeText.trim() ? resumeText.trim() : undefined,
+        resume_file_name: hasResume && resumeFileName ? resumeFileName : undefined
       });
 
       // If server responded synchronously with kit
@@ -531,8 +551,14 @@ export default function DashboardPage() {
       {/* Hero */}
       <div className="relative rounded-2xl px-8 py-10 sm:px-12 sm:py-14 bg-gradient-to-br from-[#060b07] via-[#0a120c] to-primary-950/40 border border-emerald-500/20 overflow-hidden animate-fade-up">
         {/* Background glows */}
-        <div className="absolute -top-20 -right-20 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute bottom-0 left-1/3 w-64 h-40 bg-teal-500/10 rounded-full blur-2xl pointer-events-none" />
+        <div
+          className="absolute -top-20 -right-20 w-80 h-80 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(16, 185, 129, 0.12) 0%, transparent 70%)' }}
+        />
+        <div
+          className="absolute bottom-0 left-1/3 w-64 h-40 rounded-full pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(20, 184, 166, 0.08) 0%, transparent 70%)' }}
+        />
 
         <div className="relative z-10 max-w-2xl">
           {/* Subtle pill — no internal ref */}
@@ -758,6 +784,70 @@ export default function DashboardPage() {
                       ))}
                     </div>
                   </div>
+                </div>
+              )}
+            </div>
+
+            {/* Candidate Resume (Optional) */}
+            <div className="rounded-xl border border-surface-border bg-slate-900/60 p-4 space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div>
+                  <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-200">
+                    <FileText className="w-4 h-4 text-emerald-400" />
+                    <span>Candidate Resume & Background</span>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                      Optional
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 mt-0.5">
+                    Attach your resume to get tailored STAR answers and talking points grounded in your actual projects.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setHasResume(!hasResume)}
+                  className={`px-3 py-1 text-xs font-semibold rounded-lg transition-colors border self-start sm:self-auto ${
+                    hasResume
+                      ? 'bg-emerald-600 text-white border-emerald-500 shadow-sm'
+                      : 'bg-slate-800 text-slate-300 hover:text-white border-surface-border'
+                  }`}
+                >
+                  {hasResume ? '✓ Resume Enabled' : '+ Attach Resume'}
+                </button>
+              </div>
+
+              {hasResume && (
+                <div className="pt-2 space-y-2 border-t border-surface-border/50 animate-fade-in">
+                  <div className="flex items-center justify-between">
+                    <input
+                      type="file"
+                      ref={resumeFileInputRef}
+                      onChange={handleResumeFileUpload}
+                      accept=".txt,.json,.docx,.pdf"
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => resumeFileInputRef.current?.click()}
+                      className="text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-surface-card border border-surface-border text-emerald-400 hover:text-white flex items-center gap-1.5 transition-colors"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{resumeFileName ? `Change (${resumeFileName})` : 'Upload Resume File'}</span>
+                    </button>
+                    {resumeFileName && (
+                      <span className="text-[11px] text-slate-400 truncate max-w-[200px]">
+                        {resumeFileName}
+                      </span>
+                    )}
+                  </div>
+                  <textarea
+                    rows={4}
+                    value={resumeText}
+                    onChange={(e) => setResumeText(e.target.value)}
+                    placeholder="Or paste your resume text here (work experience, technologies, achievements)..."
+                    className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-surface-border text-xs text-slate-200 focus:outline-none focus:border-emerald-500 placeholder:text-slate-600 font-mono"
+                  />
                 </div>
               )}
             </div>

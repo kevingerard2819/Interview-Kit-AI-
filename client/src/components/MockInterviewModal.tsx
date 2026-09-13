@@ -44,7 +44,7 @@ export default function MockInterviewModal({ isOpen, onClose, question, kitId }:
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 animate-fade-in overflow-y-auto">
       <div className="w-full max-w-2xl bg-surface border border-surface-border rounded-2xl p-6 shadow-2xl relative my-8">
         <button
           onClick={resetModal}
@@ -174,6 +174,16 @@ export default function MockInterviewModal({ isOpen, onClose, question, kitId }:
                   <span>Key Interview Coaching Tip</span>
                 </div>
                 <p className="text-xs text-slate-300 leading-relaxed">{evaluation.coaching_tip}</p>
+              </div>
+            )}
+
+            {evaluation.resume_alignment_tip && (
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
+                <div className="flex items-center gap-2 mb-1.5 text-emerald-400 text-xs font-bold uppercase tracking-wider">
+                  <Sparkles className="w-4 h-4" />
+                  <span>Resume Advantage & Project Leverage Tip</span>
+                </div>
+                <p className="text-xs text-emerald-200 leading-relaxed">{evaluation.resume_alignment_tip}</p>
               </div>
             )}
 

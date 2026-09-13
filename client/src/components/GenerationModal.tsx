@@ -111,7 +111,7 @@ export default function GenerationModal({
   if (error) {
     return (
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm transition-opacity duration-200 ${
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 transition-opacity duration-150 ${
           visible ? 'opacity-100' : 'opacity-0'
         }`}
       >
@@ -183,7 +183,7 @@ export default function GenerationModal({
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-sm transition-opacity duration-200 ${
+      className={`fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 transition-opacity duration-150 ${
         visible ? 'opacity-100' : 'opacity-0'
       }`}
     >

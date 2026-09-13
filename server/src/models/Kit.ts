@@ -24,6 +24,20 @@ const QuestionSchema = new Schema({
   interview_stage: { type: String },
   source_forum: { type: String },
   forum_tip: { type: String },
+  // Tailored answer based on candidate resume
+  tailored_response: {
+    answer: { type: String },
+    star_breakdown: {
+      situation: { type: String },
+      task: { type: String },
+      action: { type: String },
+      result: { type: String }
+    },
+    resume_highlights: [{ type: String }],
+    talking_points: [{ type: String }],
+    gap_guidance: { type: String },
+    generated_at: { type: String }
+  },
   // UI Builder metadata for preserving edits and pinned questions
   is_custom: { type: Boolean, default: false },
   is_pinned: { type: Boolean, default: false },
@@ -95,6 +109,13 @@ const KitSchema = new Schema<IKitDocument>({
   coverage: {
     uncovered_requirement_ids: [{ type: String }],
     passes: { type: Number, default: 1 }
+  },
+  candidate_resume: {
+    text: { type: String },
+    file_name: { type: String },
+    uploaded_at: { type: String },
+    extracted_skills: [{ type: String }],
+    current_title: { type: String }
   }
 }, {
   timestamps: true

@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  // Disable strict mode in dev to prevent double-render/double-effect lag
+  reactStrictMode: false,
+
+  // Faster dev builds — skip type checking during dev (tsc handles it separately)
+  typescript: {
+    ignoreBuildErrors: false,
+  },
+
+  // Experimental: faster JS compiler
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+
   async rewrites() {
     return [
       {

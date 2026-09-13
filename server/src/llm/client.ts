@@ -200,15 +200,10 @@ export class LLMClient {
       });
     }
 
-    // 4. Initial Draft Questions & Flashcards
-    if (lower.includes('question') || lower.includes('flashcard') || lower.includes('bank of')) {
-      return JSON.stringify(mockGenerateDraftQuestions(prompt));
-    }
-
-    // 5. Mock Interview Diagnostic Evaluation
-    if (lower.includes('mock interview assessment') || lower.includes('readiness_score')) {
+    // 4. Mock Interview Diagnostic Evaluation
+    if (lower.includes('mock interview') || lower.includes('readiness_score') || lower.includes('candidate\'s response')) {
       return JSON.stringify({
-        readiness_score: 82,
+        readiness_score: 85,
         strengths: [
           'Clearly identified the core architectural requirements and operational trade-offs',
           'Addressed system scalability and structured the response logically'
@@ -217,8 +212,14 @@ export class LLMClient {
           'Could elaborate more on failure modes, error handling, and recovery strategies',
           'Mention specific production metrics or monitoring signals used to validate the approach'
         ],
-        coaching_tip: 'In the live interview, structure your answer using STAR or System Design framework before diving into edge cases.'
+        coaching_tip: 'In the live interview, structure your answer using STAR or System Design framework before diving into edge cases.',
+        resume_alignment_tip: 'Highlight your direct experience with Go and Kafka from your background to anchor this answer with concrete authority.'
       });
+    }
+
+    // 5. Initial Draft Questions & Flashcards
+    if (lower.includes('flashcard') || lower.includes('bank of') || lower.includes('draft questions')) {
+      return JSON.stringify(mockGenerateDraftQuestions(prompt));
     }
 
     return "{}";

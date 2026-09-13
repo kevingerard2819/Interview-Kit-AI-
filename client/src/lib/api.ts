@@ -104,7 +104,14 @@ export const api = {
     return request<{ kit: Kit & { _id: string } }>(`/kits/${id}`);
   },
 
-  async generateKit(payload: { jd: string; company_url: string; days: number; custom_rounds?: string[] }): Promise<{ jobId?: string; kit?: Kit & { _id: string } }> {
+  async generateKit(payload: {
+    jd: string;
+    company_url: string;
+    days: number;
+    custom_rounds?: string[];
+    resume_text?: string;
+    resume_file_name?: string;
+  }): Promise<{ jobId?: string; kit?: Kit & { _id: string } }> {
     return request<{ jobId?: string; kit?: Kit & { _id: string } }>('/kits/generate', {
       method: 'POST',
       body: JSON.stringify(payload)
@@ -158,11 +165,43 @@ export const api = {
       strengths: string[];
       weak_spots: string[];
       coaching_tip: string;
+      resume_alignment_tip?: string;
     }
   }> {
     return request(`/kits/${kitId}/mock-interview-eval`, {
       method: 'POST',
       body: JSON.stringify({ question_id, candidate_answer })
+    });
+  },
+
+  // Resume Tailoring
+  async uploadResume(kitId: string, payload: { resume_text?: string; file_name?: string; file_base64?: string }): Promise<{
+    message: string;
+    candidate_resume: any;
+  }> {
+    return request(`/kits/${kitId}/resume`, {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    });
+  },
+
+  async tailorQuestion(kitId: string, questionId: string, resume_text?: string): Promise<{
+    message: string;
+    question: any;
+  }> {
+    return request(`/kits/${kitId}/questions/${questionId}/tailor`, {
+      method: 'POST',
+      body: JSON.stringify({ resume_text })
+    });
+  },
+
+  async tailorAllQuestions(kitId: string, resume_text?: string): Promise<{
+    message: string;
+    kit: any;
+  }> {
+    return request(`/kits/${kitId}/tailor-all`, {
+      method: 'POST',
+      body: JSON.stringify({ resume_text })
     });
   }
 };

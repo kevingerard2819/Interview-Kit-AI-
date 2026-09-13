@@ -25,10 +25,35 @@ export interface Question {
   interview_stage?: string;
   source_forum?: string;
   forum_tip?: string;
+  tailored_response?: TailoredResponse;
   // UI metadata (optional extensions for Builder edit preservation)
   is_custom?: boolean;
   is_pinned?: boolean;
   user_edited?: boolean;
+}
+
+export interface StarBreakdown {
+  situation: string;
+  task: string;
+  action: string;
+  result: string;
+}
+
+export interface TailoredResponse {
+  answer: string;
+  star_breakdown?: StarBreakdown;
+  resume_highlights: string[];
+  talking_points: string[];
+  gap_guidance?: string;
+  generated_at: string;
+}
+
+export interface CandidateResume {
+  text: string;
+  file_name?: string;
+  uploaded_at: string;
+  extracted_skills?: string[];
+  current_title?: string;
 }
 
 export interface Flashcard {
@@ -105,6 +130,7 @@ export interface Kit {
   flashcards: Flashcard[];
   schedule: Schedule;
   coverage: Coverage;
+  candidate_resume?: CandidateResume;
 }
 
 /**

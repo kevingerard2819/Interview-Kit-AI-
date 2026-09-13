@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { api } from '../../../lib/api';
 import { Kit, Question, Flashcard, QuestionCategory } from '@/types';
 import MockInterviewModal from '../../../components/MockInterviewModal';
+import ResumeModal from '../../../components/ResumeModal';
 import {
   Building,
   Briefcase,
@@ -34,6 +35,9 @@ import {
   Compass,
   Milestone,
   Target,
+  FileText,
+  CheckCircle2,
+  Loader2,
   X
 } from 'lucide-react';
 
@@ -70,6 +74,59 @@ export default function KitBuilderPage() {
   const [showAddCard, setShowAddCard] = useState(false);
   const [newFront, setNewFront] = useState('');
   const [newBack, setNewBack] = useState('');
+
+  // Resume Tailoring State
+  const [showResumeModal, setShowResumeModal] = useState(false);
+  const [tailoringQId, setTailoringQId] = useState<string | null>(null);
+  const [tailoringAll, setTailoringAll] = useState(false);
+  const [activeAnswerTabs, setActiveAnswerTabs] = useState<Record<string, 'standard' | 'tailored'>>({});
+
+  const toggleAnswerTab = (qId: string, tab: 'standard' | 'tailored') => {
+    setActiveAnswerTabs(prev => ({ ...prev, [qId]: tab }));
+  };
+
+  const handleTailorQuestion = async (qId: string) => {
+    if (!kit) return;
+    if (!kit.candidate_resume?.text) {
+      setShowResumeModal(true);
+      return;
+    }
+    try {
+      setTailoringQId(qId);
+      const res = await api.tailorQuestion(kit._id, qId);
+      setKit({
+        ...kit,
+        questions: kit.questions.map(q => q.id === qId ? res.question : q)
+      });
+      setActiveAnswerTabs(prev => ({ ...prev, [qId]: 'tailored' }));
+    } catch (err: any) {
+      alert(err.message || 'Failed to tailor question');
+    } finally {
+      setTailoringQId(null);
+    }
+  };
+
+  const handleTailorAll = async () => {
+    if (!kit) return;
+    if (!kit.candidate_resume?.text) {
+      setShowResumeModal(true);
+      return;
+    }
+    try {
+      setTailoringAll(true);
+      const res = await api.tailorAllQuestions(kit._id);
+      setKit({ ...kit, ...res.kit });
+      const updatedTabs: Record<string, 'standard' | 'tailored'> = {};
+      (res.kit.questions || []).forEach((q: any) => {
+        if (q.tailored_response) updatedTabs[q.id] = 'tailored';
+      });
+      setActiveAnswerTabs(prev => ({ ...prev, ...updatedTabs }));
+    } catch (err: any) {
+      alert(err.message || 'Failed to tailor all questions');
+    } finally {
+      setTailoringAll(false);
+    }
+  };
 
   const loadKit = async () => {
     try {
@@ -262,6 +319,15 @@ export default function KitBuilderPage() {
         kitId={kit._id}
       />
 
+      {/* Resume Modal */}
+      <ResumeModal
+        isOpen={showResumeModal}
+        onClose={() => setShowResumeModal(false)}
+        kitId={kit._id}
+        currentResume={kit.candidate_resume}
+        onSuccess={() => loadKit()}
+      />
+
       {/* Save Toast */}
       {saveToast && (
         <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent-emerald text-white text-xs font-semibold shadow-2xl animate-fade-in">
@@ -280,6 +346,12 @@ export default function KitBuilderPage() {
             <span className="text-xs text-slate-400">
               Coverage: {kit.coverage.passes} pass{kit.coverage.passes > 1 ? 'es' : ''} ({kit.coverage.uncovered_requirement_ids.length === 0 ? '100% Covered' : `${kit.coverage.uncovered_requirement_ids.length} gaps`})
             </span>
+            {kit.candidate_resume?.text && (
+              <span className="text-xs font-mono px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-semibold flex items-center gap-1">
+                <FileText className="w-3 h-3 text-emerald-400" />
+                <span>Resume Attached</span>
+              </span>
+            )}
           </div>
           <h1 className="text-2xl font-black text-white">{kit.role.title}</h1>
           <div className="flex items-center gap-4 text-xs text-slate-400 mt-1">
@@ -299,12 +371,25 @@ export default function KitBuilderPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5 flex-wrap">
+          <button
+            onClick={() => setShowResumeModal(true)}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all shadow-sm ${
+              kit.candidate_resume?.text
+                ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                : 'bg-surface-card hover:bg-slate-800 text-slate-200 border-surface-border'
+            }`}
+            title="Attach or update candidate resume for tailored answers"
+          >
+            <FileText className="w-3.5 h-3.5 text-emerald-400" />
+            <span>{kit.candidate_resume?.text ? 'Edit Resume' : '+ Attach Resume'}</span>
+          </button>
+
           <Link
             href={`/kits/${kit._id}/practice`}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-card hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-surface-border transition-colors shadow-sm"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-card hover:bg-slate-800 text-slate-200 text-xs font-semibold border border-surface-border transition-colors shadow-sm"
           >
-            <BookOpen className="w-4 h-4 text-accent-cyan" />
+            <BookOpen className="w-3.5 h-3.5 text-accent-cyan" />
             <span>Practice Deck</span>
           </Link>
 
@@ -697,6 +782,58 @@ export default function KitBuilderPage() {
             </button>
           </div>
 
+          {/* Candidate Resume Tailoring Banner */}
+          <div className="p-4 rounded-xl bg-gradient-to-r from-emerald-950/40 via-slate-900/80 to-surface-card border border-emerald-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md">
+            <div className="flex items-center gap-3">
+              <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shrink-0">
+                <FileText className="w-5 h-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h3 className="text-xs font-bold text-white uppercase tracking-wider font-mono">
+                    {kit.candidate_resume?.text ? 'Candidate Resume Attached & Tailoring Active' : 'Tailor Answers to Your Resume'}
+                  </h3>
+                  {kit.candidate_resume?.current_title && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-semibold">
+                      {kit.candidate_resume.current_title}
+                    </span>
+                  )}
+                  {kit.candidate_resume?.extracted_skills && kit.candidate_resume.extracted_skills.length > 0 && (
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 font-semibold">
+                      {kit.candidate_resume.extracted_skills.length} Skills Detected
+                    </span>
+                  )}
+                </div>
+                <p className="text-[11px] text-slate-300 mt-0.5 leading-relaxed">
+                  {kit.candidate_resume?.text
+                    ? `AI has analyzed your resume (${kit.candidate_resume.file_name || 'Attached Resume'}). You can generate tailored STAR stories and talking points referencing your actual past projects.`
+                    : 'Upload or paste your resume (PDF/Text) to have AI craft personalized behavioral STAR answers and technical talking points based on your real experience.'}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
+              {kit.candidate_resume?.text && (
+                <button
+                  onClick={handleTailorAll}
+                  disabled={tailoringAll}
+                  className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/20 disabled:opacity-50"
+                  title="Tailor all key behavioral and system design questions to your resume"
+                >
+                  {tailoringAll ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                  <span>{tailoringAll ? 'Tailoring All...' : 'Tailor All Questions'}</span>
+                </button>
+              )}
+              <button
+                onClick={() => setShowResumeModal(true)}
+                className="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-emerald-500/30 text-emerald-300 text-xs font-medium flex items-center gap-1.5 transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5" />
+                <span>{kit.candidate_resume?.text ? 'Update Resume' : '+ Attach Resume'}</span>
+              </button>
+            </div>
+          </div>
+
           {/* Question Bank Header & View Mode Switcher */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div>
@@ -1052,6 +1189,24 @@ export default function KitBuilderPage() {
                         <span>Simulate</span>
                       </button>
 
+                      {/* Tailor to Resume Button */}
+                      <button
+                        onClick={() => handleTailorQuestion(q.id)}
+                        disabled={tailoringQId === q.id}
+                        className={`flex items-center gap-1 px-2.5 py-1 text-[11px] font-medium rounded border transition-all ${
+                          q.tailored_response
+                            ? 'text-emerald-300 bg-emerald-500/15 hover:bg-emerald-500/25 border-emerald-500/35'
+                            : 'text-slate-300 bg-slate-800 hover:bg-slate-700 border-surface-border'
+                        }`}
+                        title="Generate personalized answer referencing your real projects and background"
+                      >
+                        {tailoringQId === q.id ? (
+                          <><Loader2 className="w-3 h-3 animate-spin text-emerald-400" /><span>Tailoring...</span></>
+                        ) : (
+                          <><FileText className="w-3 h-3 text-emerald-400" /><span>{q.tailored_response ? 'Re-Tailor' : 'Tailor to Resume'}</span></>
+                        )}
+                      </button>
+
                       {/* Delete */}
                       <button
                         onClick={() => deleteQuestion(q.id)}
@@ -1074,15 +1229,127 @@ export default function KitBuilderPage() {
                     />
                   </div>
 
-                  {/* Editable Answer Outline */}
-                  <div className="mt-2">
-                    <label className="block text-[11px] font-semibold text-slate-400 mb-1">Answer Outline & Rubric:</label>
-                    <textarea
-                      rows={2}
-                      value={q.answer_outline}
-                      onChange={(e) => updateQuestionField(q.id, 'answer_outline', e.target.value)}
-                      className="w-full text-xs text-slate-300 bg-slate-900/40 p-2.5 rounded-lg border border-surface-border focus:outline-none focus:border-primary-500"
-                    />
+                  {/* Answer Section: Standard Outline vs. My Resume Tailored Answer */}
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div className="flex items-center gap-1 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => toggleAnswerTab(q.id, 'standard')}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${
+                            (activeAnswerTabs[q.id] || (q.tailored_response ? 'tailored' : 'standard')) === 'standard'
+                              ? 'bg-slate-800 text-white font-semibold border border-surface-border'
+                              : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          General Answer Guide
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!q.tailored_response) {
+                              handleTailorQuestion(q.id);
+                            } else {
+                              toggleAnswerTab(q.id, 'tailored');
+                            }
+                          }}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-all flex items-center gap-1.5 ${
+                            (activeAnswerTabs[q.id] || (q.tailored_response ? 'tailored' : 'standard')) === 'tailored'
+                              ? 'bg-emerald-600 text-white font-semibold shadow-sm'
+                              : q.tailored_response
+                              ? 'text-emerald-400 hover:text-emerald-300 bg-emerald-500/10 border border-emerald-500/25'
+                              : 'text-slate-400 hover:text-emerald-300 bg-slate-800/60 border border-surface-border'
+                          }`}
+                        >
+                          <Sparkles className="w-3 h-3 text-emerald-300" />
+                          <span>My Resume Tailored Answer</span>
+                          {q.tailored_response && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-300" />
+                          )}
+                        </button>
+                      </div>
+
+                      {q.tailored_response && (
+                        <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
+                          <CheckCircle2 className="w-3 h-3" />
+                          <span>Grounded in Resume</span>
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Active Answer Content */}
+                    {(activeAnswerTabs[q.id] || (q.tailored_response ? 'tailored' : 'standard')) === 'tailored' && q.tailored_response ? (
+                      <div className="p-3.5 rounded-xl bg-gradient-to-br from-emerald-950/30 via-slate-900/90 to-[#0a0f0c] border border-emerald-500/30 space-y-3 shadow-inner">
+                        <div>
+                          <span className="text-[10px] font-mono uppercase tracking-wider text-emerald-400 font-bold block mb-1">
+                            Personalized Spoken Answer:
+                          </span>
+                          <p className="text-xs text-slate-200 leading-relaxed whitespace-pre-wrap">
+                            {q.tailored_response.answer}
+                          </p>
+                        </div>
+
+                        {/* STAR breakdown if behavioral */}
+                        {q.tailored_response.star_breakdown?.situation && (
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 border-t border-emerald-900/40">
+                            <div className="p-2 rounded bg-slate-950/80 border border-emerald-500/20 text-[11px]">
+                              <span className="font-bold text-emerald-400 block font-mono">SITUATION</span>
+                              <span className="text-slate-300">{q.tailored_response.star_breakdown.situation}</span>
+                            </div>
+                            <div className="p-2 rounded bg-slate-950/80 border border-emerald-500/20 text-[11px]">
+                              <span className="font-bold text-teal-400 block font-mono">TASK</span>
+                              <span className="text-slate-300">{q.tailored_response.star_breakdown.task}</span>
+                            </div>
+                            <div className="p-2 rounded bg-slate-950/80 border border-emerald-500/20 text-[11px]">
+                              <span className="font-bold text-cyan-400 block font-mono">ACTION</span>
+                              <span className="text-slate-300">{q.tailored_response.star_breakdown.action}</span>
+                            </div>
+                            <div className="p-2 rounded bg-slate-950/80 border border-emerald-500/20 text-[11px]">
+                              <span className="font-bold text-emerald-300 block font-mono">RESULT</span>
+                              <span className="text-slate-300">{q.tailored_response.star_breakdown.result}</span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Talking points */}
+                        {q.tailored_response.talking_points && q.tailored_response.talking_points.length > 0 && (
+                          <div className="pt-2 border-t border-emerald-900/40 text-[11px]">
+                            <span className="font-semibold text-emerald-300 block mb-1">Delivery Talking Points:</span>
+                            <ul className="list-disc list-inside text-slate-300 space-y-0.5">
+                              {q.tailored_response.talking_points.map((tp, i) => (
+                                <li key={i}>{tp}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Highlights and Gap guidance */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-emerald-900/40">
+                          <div className="flex flex-wrap gap-1">
+                            {q.tailored_response.resume_highlights?.map((rh, i) => (
+                              <span key={i} className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                                ✦ {rh}
+                              </span>
+                            ))}
+                          </div>
+                          {q.tailored_response.gap_guidance && (
+                            <span className="text-[10px] text-amber-300/90 italic">
+                              Tip: {q.tailored_response.gap_guidance}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        <textarea
+                          rows={2}
+                          value={q.answer_outline}
+                          onChange={(e) => updateQuestionField(q.id, 'answer_outline', e.target.value)}
+                          className="w-full text-xs text-slate-300 bg-slate-900/40 p-2.5 rounded-lg border border-surface-border focus:outline-none focus:border-primary-500"
+                          placeholder="General answer outline and rubric..."
+                        />
+                      </div>
+                    )}
                   </div>
 
                   {/* Candidate Forum Debrief Tip */}

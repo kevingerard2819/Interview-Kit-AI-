@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
@@ -9,9 +10,11 @@ module.exports = {
     extend: {
       colors: {
         background: '#040605',
-        surface: '#0a0f0c',
-        'surface-card': '#101713',
-        'surface-border': '#1b2720',
+        surface: {
+          DEFAULT: '#0a0f0c',
+          card: '#101713',
+          border: '#1b2720',
+        },
         primary: {
           50: '#ecfdf5',
           100: '#d1fae5',
@@ -23,7 +26,7 @@ module.exports = {
           700: '#047857',
           800: '#065f46',
           900: '#064e3b',
-          950: '#022c22'
+          950: '#022c22',
         },
         accent: {
           emerald: '#10b981',
@@ -31,8 +34,8 @@ module.exports = {
           cyan: '#06b6d4',
           amber: '#f59e0b',
           rose: '#f43f5e',
-          purple: '#a855f7'
-        }
+          purple: '#a855f7',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -42,6 +45,7 @@ module.exports = {
         'spin-reverse-slow': 'spin-reverse 15s linear infinite',
         'pulse-glow': 'pulse-glow 2s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s linear infinite',
+        'fade-up': 'fadeUp 0.4s ease-out both',
       },
       keyframes: {
         'spin-reverse': {
@@ -55,8 +59,19 @@ module.exports = {
         'shimmer': {
           '0%': { transform: 'translateX(-100%)' },
           '100%': { transform: 'translateX(200%)' },
-        }
-      }
+        },
+        fadeUp: {
+          from: { opacity: '0', transform: 'translateY(12px)' },
+          to: { opacity: '1', transform: 'translateY(0)' },
+        },
+      },
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
+      },
+      boxShadow: {
+        'glow-emerald': '0 0 20px rgba(16, 185, 129, 0.15)',
+        'glow-emerald-md': '0 0 40px rgba(16, 185, 129, 0.2)',
+      },
     },
   },
   plugins: [],

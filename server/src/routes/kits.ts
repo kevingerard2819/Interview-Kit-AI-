@@ -5,7 +5,8 @@ import { KitModel } from '../models/Kit';
 import { runPrepKitPipeline } from '../pipeline/runner';
 import { allocateSchedule } from '../pipeline/schedule';
 import { defaultLLMClient } from '../llm/client';
-import { Question, QuestionCategory } from '../../../shared/types';
+import { Kit, Question, QuestionCategory } from '../../../shared/types';
+import { summarizeResume, generateTailoredAnswerForQuestion, extractTextFromResumeBuffer } from '../llm/resumeTailor';
 
 const router = Router();
 
@@ -143,6 +144,23 @@ interface GenerationJob {
 
 const generationJobs = new Map<string, GenerationJob>();
 
+async function attachResumeIfProvided(
+  kit: Kit,
+  resumeText?: unknown,
+  resumeFileName?: unknown
+): Promise<Kit> {
+  const text = String(resumeText || '').trim();
+  if (text.length < 20) return kit;
+
+  return {
+    ...kit,
+    candidate_resume: await summarizeResume(
+      text,
+      String(resumeFileName || 'Pasted Resume')
+    )
+  };
+}
+
 // Clean up jobs older than 1 hour
 setInterval(() => {
   const now = Date.now();
@@ -176,7 +194,7 @@ router.get('/jobs/:jobId', (req: AuthRequest, res: Response): void => {
  */
 router.post('/generate', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { jd, company_url, days, custom_rounds } = req.body;
+    const { jd, company_url, days, custom_rounds, resume_text, resume_file_name } = req.body;
 
     if (!jd || !company_url) {
       res.status(400).json({ error: 'Job description and company URL are required.' });
@@ -188,12 +206,12 @@ router.post('/generate', async (req: AuthRequest, res: Response): Promise<void> 
 
     // If client requested synchronous execution (e.g. sync query param)
     if (req.query.sync === 'true') {
-      const generatedKit = await runPrepKitPipeline({
+      const generatedKit = await attachResumeIfProvided(await runPrepKitPipeline({
         jd: String(jd).trim(),
         company_url: String(company_url).trim(),
         days: numDays,
         custom_rounds: Array.isArray(custom_rounds) ? custom_rounds : undefined
-      });
+      }), resume_text, resume_file_name);
       const saved = await KitModel.create({
         userId,
         ...generatedKit
@@ -240,7 +258,7 @@ router.post('/generate', async (req: AuthRequest, res: Response): Promise<void> 
           completed: 5
         };
 
-        const generatedKit = await runPrepKitPipeline(
+        const generatedKit = await attachResumeIfProvided(await runPrepKitPipeline(
           {
             jd: String(jd).trim(),
             company_url: String(company_url).trim(),
@@ -255,7 +273,7 @@ router.post('/generate', async (req: AuthRequest, res: Response): Promise<void> 
               job.progress = prog.progressPercent;
             }
           }
-        );
+        ), resume_text, resume_file_name);
 
         const saved = await KitModel.create({
           userId,
@@ -431,8 +449,161 @@ Output JSON: { "questions": [ { "id": "q_new", "requirement_ids": ["r1"], "categ
 });
 
 /**
+ * POST /api/kits/:id/resume - Attaches and summarizes a candidate resume for a kit
+ */
+router.post('/:id/resume', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { resume_text, file_name, file_base64 } = req.body;
+    let text = (resume_text || '').trim();
+
+    if (!text && file_base64) {
+      const buffer = Buffer.from(file_base64, 'base64');
+      text = await extractTextFromResumeBuffer(buffer, file_name);
+    }
+
+    if (!text || text.length < 20) {
+      res.status(400).json({ error: 'Please provide valid resume text or upload a readable document.' });
+      return;
+    }
+
+    const kit = await KitModel.findOne({
+      _id: req.params.id,
+      userId: req.user?.userId
+    });
+
+    if (!kit) {
+      res.status(404).json({ error: 'Kit not found' });
+      return;
+    }
+
+    const summary = await summarizeResume(text, file_name);
+    kit.candidate_resume = summary as any;
+    await kit.save();
+
+    res.status(200).json({
+      message: 'Resume attached successfully',
+      candidate_resume: kit.candidate_resume
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to attach resume' });
+  }
+});
+
+/**
+ * POST /api/kits/:id/questions/:qId/tailor - Generates tailored answer & talking points based on resume
+ */
+router.post('/:id/questions/:qId/tailor', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { resume_text } = req.body;
+    const kit = await KitModel.findOne({
+      _id: req.params.id,
+      userId: req.user?.userId
+    });
+
+    if (!kit) {
+      res.status(404).json({ error: 'Kit not found' });
+      return;
+    }
+
+    const question = kit.questions.find(q => q.id === req.params.qId);
+    if (!question) {
+      res.status(404).json({ error: 'Question not found' });
+      return;
+    }
+
+    let candidateResumeText = resume_text || kit.candidate_resume?.text;
+    if (!candidateResumeText || candidateResumeText.trim().length < 20) {
+      res.status(400).json({ error: 'Please upload or paste your resume first to generate tailored answers.' });
+      return;
+    }
+
+    // If user provided resume text directly and kit doesn't have it, save it
+    if (resume_text && (!kit.candidate_resume || kit.candidate_resume.text !== resume_text)) {
+      kit.candidate_resume = (await summarizeResume(resume_text, 'Pasted Resume')) as any;
+    }
+
+    const tailored = await generateTailoredAnswerForQuestion({
+      question: question as any,
+      resumeText: candidateResumeText,
+      companyName: kit.source.company,
+      roleTitle: kit.role.title
+    });
+
+    question.tailored_response = tailored as any;
+    kit.markModified('questions');
+    await kit.save();
+
+    res.status(200).json({
+      message: 'Question tailored to resume successfully',
+      question
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to tailor question' });
+  }
+});
+
+/**
+ * POST /api/kits/:id/tailor-all - Batch tailors questions across behavioral and system design
+ */
+router.post('/:id/tailor-all', async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const { resume_text } = req.body;
+    const kit = await KitModel.findOne({
+      _id: req.params.id,
+      userId: req.user?.userId
+    });
+
+    if (!kit) {
+      res.status(404).json({ error: 'Kit not found' });
+      return;
+    }
+
+    let candidateResumeText = resume_text || kit.candidate_resume?.text;
+    if (!candidateResumeText || candidateResumeText.trim().length < 20) {
+      res.status(400).json({ error: 'Please upload or attach your resume first.' });
+      return;
+    }
+
+    if (resume_text && (!kit.candidate_resume || kit.candidate_resume.text !== resume_text)) {
+      kit.candidate_resume = (await summarizeResume(resume_text, 'Pasted Resume')) as any;
+    }
+
+    // Select questions needing tailoring (behavioral, system-design, company-fit, or untailored)
+    const targets = kit.questions.filter(q =>
+      q.category === 'behavioural' ||
+      q.category === 'system-design' ||
+      q.category === 'company-fit' ||
+      !q.tailored_response
+    ).slice(0, 8);
+
+    for (const q of targets) {
+      try {
+        q.tailored_response = (await generateTailoredAnswerForQuestion({
+          question: q as any,
+          resumeText: candidateResumeText,
+          companyName: kit.source.company,
+          roleTitle: kit.role.title
+        })) as any;
+      } catch (tailorErr) {
+        console.warn(`[TailorAll] Skipped question ${q.id}:`, tailorErr);
+      }
+    }
+
+    kit.markModified('questions');
+    await kit.save();
+
+    res.status(200).json({
+      message: `Tailored ${targets.length} questions to your resume`,
+      kit
+    });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message || 'Failed to batch tailor questions' });
+  }
+});
+
+/**
  * POST /api/kits/:id/mock-interview-eval (Creative Feature)
- * Real-time diagnostic evaluation of a candidate's answer against the question outline.
+ * Real-time diagnostic evaluation of a candidate's answer against the question outline and resume.
  */
 router.post('/:id/mock-interview-eval', async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -453,22 +624,28 @@ router.post('/:id/mock-interview-eval', async (req: AuthRequest, res: Response):
       return;
     }
 
+    const resumeSnippet = kit.candidate_resume?.text
+      ? `\nCandidate's Past Projects & Resume Highlights:\n"""\n${kit.candidate_resume.text.slice(0, 2500)}\n"""\n`
+      : '';
+
     const prompt = `You are a senior hiring manager conducting a mock interview assessment.
 Role: ${kit.role.title} at ${kit.source.company}
 Question: "${question.prompt}"
 Expected Answer Outline: "${question.answer_outline}"
+${resumeSnippet}
 Candidate's Response:
 """
 ${candidate_answer}
 """
 
-Evaluate the candidate's answer with honesty, rigor, and actionable coaching.
+Evaluate the candidate's answer with honesty, rigor, actionable coaching, and specific advice on how they could better showcase real accomplishments from their resume.
 Output JSON schema:
 {
   "readiness_score": 85, // integer 0-100
   "strengths": ["Clear articulation of...", "Addressed..."],
   "weak_spots": ["Missed discussing...", "Did not cover edge case..."],
-  "coaching_tip": "Concrete 1-2 sentence recommendation for the live interview"
+  "coaching_tip": "Concrete 1-2 sentence recommendation for the live interview",
+  "resume_alignment_tip": "Optional 1-2 sentence advice on how to weave in specific projects or metrics from their background"
 }`;
 
     const evaluation = await defaultLLMClient.generateJson<any>(prompt);
