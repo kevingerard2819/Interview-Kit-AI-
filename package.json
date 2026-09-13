@@ -24,6 +24,10 @@
   ],
   "author": "",
   "license": "MIT",
+  "engines": {
+    "node": "22.x",
+    "npm": ">=10"
+  },
   "dependencies": {
     "@google/generative-ai": "^0.21.0",
     "@types/pdf-parse": "^1.1.5",
