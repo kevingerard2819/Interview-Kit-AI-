@@ -1,6 +1,8 @@
 import { Kit, QuestionCategory } from '@/types';
 
-const API_BASE = '/api';
+const API_BASE = typeof window !== 'undefined'
+  ? (process.env.NEXT_PUBLIC_API_URL || (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' ? 'http://localhost:5000/api' : '/api'))
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api');
 
 export interface User {
   id: string;
@@ -31,10 +33,11 @@ export function clearToken(): void {
   }
 }
 
-async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function request<T = any>(endpoint: string, options: RequestInit = {}, retries = 2): Promise<T> {
   const token = getToken();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Bypass-Tunnel-Reminder': 'true',
     ...(options.headers as Record<string, string> || {})
   };
 
@@ -42,18 +45,26 @@ async function request<T = any>(endpoint: string, options: RequestInit = {}): Pr
     headers['Authorization'] = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers
-  });
+  try {
+    const res = await fetch(`${API_BASE}${endpoint}`, {
+      ...options,
+      headers
+    });
 
-  const data = await res.json().catch(() => ({}));
+    const data = await res.json().catch(() => ({}));
 
-  if (!res.ok) {
-    throw new Error(data.error || `Request failed with status ${res.status}`);
+    if (!res.ok) {
+      throw new Error(data.error || `Request failed with status ${res.status}`);
+    }
+
+    return data as T;
+  } catch (err: any) {
+    if (retries > 0 && (err.name === 'TypeError' || err.message?.includes('fetch') || err.message?.includes('NetworkError'))) {
+      await new Promise(r => setTimeout(r, 1000));
+      return request<T>(endpoint, options, retries - 1);
+    }
+    throw err;
   }
-
-  return data as T;
 }
 
 export const api = {
@@ -93,14 +104,29 @@ export const api = {
     return request<{ kit: Kit & { _id: string } }>(`/kits/${id}`);
   },
 
-  async generateKit(payload: { jd: string; company_url: string; days: number }): Promise<{ kit: Kit & { _id: string } }> {
-    return request<{ kit: Kit & { _id: string } }>('/kits/generate', {
+  async generateKit(payload: { jd: string; company_url: string; days: number; custom_rounds?: string[] }): Promise<{ jobId?: string; kit?: Kit & { _id: string } }> {
+    return request<{ jobId?: string; kit?: Kit & { _id: string } }>('/kits/generate', {
       method: 'POST',
       body: JSON.stringify(payload)
     });
   },
 
-  async batchUpload(items: { jd: string; company_url: string; days: number }[]): Promise<{ kits: any[] }> {
+  async getGenerationJob(jobId: string): Promise<{
+    job: {
+      id: string;
+      status: 'pending' | 'processing' | 'completed' | 'failed';
+      stageIndex: number;
+      stageName: string;
+      message: string;
+      progress: number;
+      kitId?: string;
+      error?: string;
+    }
+  }> {
+    return request(`/kits/jobs/${jobId}`);
+  },
+
+  async batchUpload(items: { jd: string; company_url: string; days: number; custom_rounds?: string[] }[]): Promise<{ kits: any[] }> {
     return request<{ kits: any[] }>('/kits/batch-upload', {
       method: 'POST',
       body: JSON.stringify({ items })

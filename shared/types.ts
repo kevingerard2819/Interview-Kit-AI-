@@ -22,6 +22,10 @@ export interface Question {
   prompt: string;
   answer_outline: string;
   difficulty: 1 | 2 | 3;
+  // Interview stage & forum grounding metadata
+  interview_stage?: string; // e.g. "Live Coding / LeetCode Challenge", "Distributed System Design", "Take-Home Coding Project", "Bar Raiser & Values"
+  source_forum?: string; // e.g. "Glassdoor Reviews", "Reddit r/cscareerquestions", "LeetCode Discuss", "Hiring Page"
+  forum_tip?: string; // Candidate debrief tip from forums
   // UI metadata (optional extensions for Builder edit preservation)
   is_custom?: boolean;
   is_pinned?: boolean;
@@ -71,6 +75,17 @@ export interface CompanyBrief {
   summary: string;
   what_they_do: string;
   sources: string[];
+  public_discussion?: {
+    searched: boolean;
+    found: boolean;
+    summary: string;
+    reported_rounds?: string[];
+    rounds_source?: 'user_specified' | 'auto_scanned';
+    interview_difficulty_rating?: string;
+    key_focus_areas?: string[];
+    candidate_tips?: string[];
+    sources: string[];
+  };
 }
 
 export interface RoleInfo {

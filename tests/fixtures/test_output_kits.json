@@ -1,0 +1,441 @@
+{
+  "version": "1.0",
+  "generated_at": "2026-09-12T05:57:54.274Z",
+  "kits": [
+    {
+      "id": "case-01",
+      "status": "ok",
+      "kit": {
+        "source": {
+          "company": "Example Domain",
+          "company_url": "https://example.com",
+          "role": "Senior FullStack Engineer",
+          "location": "Remote / Unspecified",
+          "jd_chars": 331,
+          "researched_at": "2026-09-12T05:57:53.048Z",
+          "pages_used": [
+            "https://example.com"
+          ]
+        },
+        "company_brief": {
+          "summary": "Technology Organization is an engineering-driven organization building scalable platforms, customer-facing interfaces, and robust systems architecture.",
+          "what_they_do": "Develops and scales mission-critical products focusing on high availability, operational reliability, and exceptional developer standards.",
+          "sources": [
+            "https://example.com"
+          ]
+        },
+        "role": {
+          "title": "Senior FullStack Engineer",
+          "seniority": "Senior",
+          "responsibilities": [
+            "Design, build, and maintain mission-critical services for Senior FullStack Engineer",
+            "Collaborate with cross-functional product and engineering teams",
+            "Ensure system reliability, scalability, performance, and automated test coverage"
+          ],
+          "requirements": [
+            {
+              "id": "r1",
+              "text": "Production expertise in core technology stack: typescript, react, node.js, microservices",
+              "kind": "technical",
+              "priority": "must"
+            },
+            {
+              "id": "r2",
+              "text": "Distributed architecture, scalability, API design, and high-availability systems",
+              "kind": "technical",
+              "priority": "must"
+            },
+            {
+              "id": "r3",
+              "text": "Cross-functional collaboration, technical mentorship, and clear engineering communication",
+              "kind": "behavioural",
+              "priority": "must"
+            },
+            {
+              "id": "r4",
+              "text": "Automated testing, CI/CD pipelines, containerization, and production observability",
+              "kind": "domain",
+              "priority": "nice"
+            }
+          ]
+        },
+        "questions": [
+          {
+            "id": "q1",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "technical",
+            "prompt": "Practical Coding / Take-Home Assessment (aligned with reported interview format): Walk through your end-to-end architecture, API contracts, and testing strategy for implementing Production expertise in core technology stack: typescript, react, node.js,.",
+            "answer_outline": "Detail profiling tools, heap dumps, CPU flamegraphs, event loop / thread diagnostics, and mitigation strategies.",
+            "difficulty": 2
+          },
+          {
+            "id": "q2",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "system-design",
+            "prompt": "System Design Round (as reported in Example Domain interview experiences): How would you architect a fault-tolerant, horizontally scalable system handling high traffic volume utilizing Production expertise in core technology stack: typescript, react, node.js,?",
+            "answer_outline": "Cover partitioning / sharding strategies, caching tiers (Redis / CDN), asynchronous message brokers, backpressure handling, and graceful degradation.",
+            "difficulty": 3
+          },
+          {
+            "id": "q3",
+            "requirement_ids": [
+              "r2"
+            ],
+            "category": "technical",
+            "prompt": "Practical Coding / Take-Home Assessment (aligned with reported interview format): Walk through your end-to-end architecture, API contracts, and testing strategy for implementing Distributed architecture, scalability, API design, and high-availability systems.",
+            "answer_outline": "Detail profiling tools, heap dumps, CPU flamegraphs, event loop / thread diagnostics, and mitigation strategies.",
+            "difficulty": 2
+          },
+          {
+            "id": "q4",
+            "requirement_ids": [
+              "r2"
+            ],
+            "category": "system-design",
+            "prompt": "System Design Round (as reported in Example Domain interview experiences): How would you architect a fault-tolerant, horizontally scalable system handling high traffic volume utilizing Distributed architecture, scalability, API design, and high-availability systems?",
+            "answer_outline": "Cover partitioning / sharding strategies, caching tiers (Redis / CDN), asynchronous message brokers, backpressure handling, and graceful degradation.",
+            "difficulty": 3
+          },
+          {
+            "id": "q5",
+            "requirement_ids": [
+              "r3"
+            ],
+            "category": "behavioural",
+            "prompt": "Tell me about a time you experienced friction or technical disagreement when delivering on Cross-functional collaboration, technical mentorship, and clear engineering. How did you reach consensus?",
+            "answer_outline": "Use STAR: Situation context, Task alignment, Action (data-driven benchmarks, trade-off matrix), Result (project shipped on schedule with unified team buy-in).",
+            "difficulty": 2
+          },
+          {
+            "id": "q6",
+            "requirement_ids": [
+              "r3"
+            ],
+            "category": "company-fit",
+            "prompt": "In candidate discussions for Example Domain, interviewers emphasize cross-functional ownership and proactive communication. How have you demonstrated this regarding Cross-functional collaboration, technical mentorship, and clear engineering?",
+            "answer_outline": "Explain engineering philosophy, empathy, pair programming techniques, and establishing measurable engineering guardrails.",
+            "difficulty": 2
+          },
+          {
+            "id": "q7",
+            "requirement_ids": [
+              "r4"
+            ],
+            "category": "technical",
+            "prompt": "How do you ensure zero-downtime rollouts, idempotency, and data integrity when operating Automated testing, CI/CD pipelines, containerization, and production?",
+            "answer_outline": "Discuss blue-green / canary deployments, idempotency keys, database migration rollback safety, and automated canary analysis.",
+            "difficulty": 2
+          },
+          {
+            "id": "q8",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "company-fit",
+            "prompt": "Why are you excited to tackle engineering challenges specifically at Example Domain, and how does your background in Senior FullStack Engineer align with our product mission?",
+            "answer_outline": "Demonstrate genuine research into Example Domain's business model, customer pain points, technical scale, and engineering values.",
+            "difficulty": 1
+          }
+        ],
+        "flashcards": [
+          {
+            "id": "f1",
+            "front": "Key operational trade-off in production for Production expertise in core technology stack:?",
+            "back": "Balancing consistency vs availability (CAP theorem), indexing overhead vs write throughput, and failover latency.",
+            "requirement_ids": [
+              "r1"
+            ]
+          },
+          {
+            "id": "f2",
+            "front": "Key operational trade-off in production for Distributed architecture, scalability, API?",
+            "back": "Balancing consistency vs availability (CAP theorem), indexing overhead vs write throughput, and failover latency.",
+            "requirement_ids": [
+              "r2"
+            ]
+          },
+          {
+            "id": "f3",
+            "front": "What makes a compelling STAR response for: Cross-functional collaboration, technical?",
+            "back": "Clear quantifiable business impact, personal accountability without blaming others, and lessons learned applied to future projects.",
+            "requirement_ids": [
+              "r3"
+            ]
+          },
+          {
+            "id": "f4",
+            "front": "Core requirement principle: Automated testing, CI/CD pipelines,",
+            "back": "Implement idempotency tokens, atomic transactions, and automated reconciliation loops to handle transient failures.",
+            "requirement_ids": [
+              "r4"
+            ]
+          }
+        ],
+        "schedule": {
+          "days_available": 5,
+          "days": [
+            {
+              "day": 1,
+              "focus": "Core Must-Haves: Deep Architecture & High-Priority Technical Competencies",
+              "question_ids": [
+                "q2",
+                "q4"
+              ],
+              "minutes": 50
+            },
+            {
+              "day": 2,
+              "focus": "Technical Deep Dive: Hands-on Problem Solving & Core Algorithms",
+              "question_ids": [
+                "q1",
+                "q3"
+              ],
+              "minutes": 36
+            },
+            {
+              "day": 3,
+              "focus": "Technical Deep Dive: Hands-on Problem Solving & Core Algorithms",
+              "question_ids": [
+                "q5",
+                "q6"
+              ],
+              "minutes": 36
+            },
+            {
+              "day": 4,
+              "focus": "Domain Knowledge, Operational Reliability & Comprehensive Review",
+              "question_ids": [
+                "q8"
+              ],
+              "minutes": 30
+            },
+            {
+              "day": 5,
+              "focus": "Final Polish: Behavioral Alignment, Company-Fit & Mock Rehearsal",
+              "question_ids": [
+                "q7"
+              ],
+              "minutes": 30
+            }
+          ]
+        },
+        "coverage": {
+          "uncovered_requirement_ids": [],
+          "passes": 1
+        }
+      },
+      "error": null
+    },
+    {
+      "id": "case-02",
+      "status": "ok",
+      "kit": {
+        "source": {
+          "company": "Example",
+          "company_url": "https://example.com/stub-firm",
+          "role": "Backend Developer",
+          "location": "Remote / Unspecified",
+          "jd_chars": 56,
+          "researched_at": "2026-09-12T05:57:54.235Z",
+          "pages_used": [
+            "https://example.com/stub-firm"
+          ]
+        },
+        "company_brief": {
+          "summary": "The company site at https://example.com/stub-firm was unreachable or returned an error during retrieval.",
+          "what_they_do": "Unable to retrieve live company product or service details from the provided website address.",
+          "sources": [
+            "https://example.com/stub-firm"
+          ]
+        },
+        "role": {
+          "title": "Backend Developer",
+          "seniority": "Mid-Senior",
+          "responsibilities": [
+            "Design, build, and maintain mission-critical services for Backend Developer",
+            "Collaborate with cross-functional product and engineering teams",
+            "Ensure system reliability, scalability, performance, and automated test coverage"
+          ],
+          "requirements": [
+            {
+              "id": "r1",
+              "text": "Production expertise in core technology stack: python",
+              "kind": "technical",
+              "priority": "must"
+            },
+            {
+              "id": "r2",
+              "text": "Distributed architecture, scalability, API design, and high-availability systems",
+              "kind": "technical",
+              "priority": "must"
+            },
+            {
+              "id": "r3",
+              "text": "Cross-functional collaboration, technical mentorship, and clear engineering communication",
+              "kind": "behavioural",
+              "priority": "must"
+            },
+            {
+              "id": "r4",
+              "text": "Automated testing, CI/CD pipelines, containerization, and production observability",
+              "kind": "domain",
+              "priority": "nice"
+            }
+          ]
+        },
+        "questions": [
+          {
+            "id": "q1",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "technical",
+            "prompt": "Practical Coding / Take-Home Assessment (aligned with reported interview format): Walk through your end-to-end architecture, API contracts, and testing strategy for implementing Production expertise in core technology stack: python.",
+            "answer_outline": "Detail profiling tools, heap dumps, CPU flamegraphs, event loop / thread diagnostics, and mitigation strategies.",
+            "difficulty": 2
+          },
+          {
+            "id": "q2",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "system-design",
+            "prompt": "System Design Round (as reported in Example interview experiences): How would you architect a fault-tolerant, horizontally scalable system handling high traffic volume utilizing Production expertise in core technology stack: python?",
+            "answer_outline": "Cover partitioning / sharding strategies, caching tiers (Redis / CDN), asynchronous message brokers, backpressure handling, and graceful degradation.",
+            "difficulty": 3
+          },
+          {
+            "id": "q3",
+            "requirement_ids": [
+              "r2"
+            ],
+            "category": "technical",
+            "prompt": "Practical Coding / Take-Home Assessment (aligned with reported interview format): Walk through your end-to-end architecture, API contracts, and testing strategy for implementing Distributed architecture, scalability, API design, and high-availability systems.",
+            "answer_outline": "Detail profiling tools, heap dumps, CPU flamegraphs, event loop / thread diagnostics, and mitigation strategies.",
+            "difficulty": 2
+          },
+          {
+            "id": "q4",
+            "requirement_ids": [
+              "r2"
+            ],
+            "category": "system-design",
+            "prompt": "System Design Round (as reported in Example interview experiences): How would you architect a fault-tolerant, horizontally scalable system handling high traffic volume utilizing Distributed architecture, scalability, API design, and high-availability systems?",
+            "answer_outline": "Cover partitioning / sharding strategies, caching tiers (Redis / CDN), asynchronous message brokers, backpressure handling, and graceful degradation.",
+            "difficulty": 3
+          },
+          {
+            "id": "q5",
+            "requirement_ids": [
+              "r3"
+            ],
+            "category": "behavioural",
+            "prompt": "Tell me about a time you experienced friction or technical disagreement when delivering on Cross-functional collaboration, technical mentorship, and clear engineering. How did you reach consensus?",
+            "answer_outline": "Use STAR: Situation context, Task alignment, Action (data-driven benchmarks, trade-off matrix), Result (project shipped on schedule with unified team buy-in).",
+            "difficulty": 2
+          },
+          {
+            "id": "q6",
+            "requirement_ids": [
+              "r3"
+            ],
+            "category": "company-fit",
+            "prompt": "In candidate discussions for Example, interviewers emphasize cross-functional ownership and proactive communication. How have you demonstrated this regarding Cross-functional collaboration, technical mentorship, and clear engineering?",
+            "answer_outline": "Explain engineering philosophy, empathy, pair programming techniques, and establishing measurable engineering guardrails.",
+            "difficulty": 2
+          },
+          {
+            "id": "q7",
+            "requirement_ids": [
+              "r4"
+            ],
+            "category": "technical",
+            "prompt": "How do you ensure zero-downtime rollouts, idempotency, and data integrity when operating Automated testing, CI/CD pipelines, containerization, and production?",
+            "answer_outline": "Discuss blue-green / canary deployments, idempotency keys, database migration rollback safety, and automated canary analysis.",
+            "difficulty": 2
+          },
+          {
+            "id": "q8",
+            "requirement_ids": [
+              "r1"
+            ],
+            "category": "company-fit",
+            "prompt": "Why are you excited to tackle engineering challenges specifically at Example, and how does your background in Backend Developer align with our product mission?",
+            "answer_outline": "Demonstrate genuine research into Example's business model, customer pain points, technical scale, and engineering values.",
+            "difficulty": 1
+          }
+        ],
+        "flashcards": [
+          {
+            "id": "f1",
+            "front": "Key operational trade-off in production for Production expertise in core technology stack:?",
+            "back": "Balancing consistency vs availability (CAP theorem), indexing overhead vs write throughput, and failover latency.",
+            "requirement_ids": [
+              "r1"
+            ]
+          },
+          {
+            "id": "f2",
+            "front": "Key operational trade-off in production for Distributed architecture, scalability, API?",
+            "back": "Balancing consistency vs availability (CAP theorem), indexing overhead vs write throughput, and failover latency.",
+            "requirement_ids": [
+              "r2"
+            ]
+          },
+          {
+            "id": "f3",
+            "front": "What makes a compelling STAR response for: Cross-functional collaboration, technical?",
+            "back": "Clear quantifiable business impact, personal accountability without blaming others, and lessons learned applied to future projects.",
+            "requirement_ids": [
+              "r3"
+            ]
+          },
+          {
+            "id": "f4",
+            "front": "Core requirement principle: Automated testing, CI/CD pipelines,",
+            "back": "Implement idempotency tokens, atomic transactions, and automated reconciliation loops to handle transient failures.",
+            "requirement_ids": [
+              "r4"
+            ]
+          }
+        ],
+        "schedule": {
+          "days_available": 2,
+          "days": [
+            {
+              "day": 1,
+              "focus": "Core Must-Haves: Deep Architecture & High-Priority Technical Competencies",
+              "question_ids": [
+                "q2",
+                "q4",
+                "q1",
+                "q3"
+              ],
+              "minutes": 86
+            },
+            {
+              "day": 2,
+              "focus": "Final Polish: Behavioral Alignment, Company-Fit & Mock Rehearsal",
+              "question_ids": [
+                "q5",
+                "q6",
+                "q8",
+                "q7"
+              ],
+              "minutes": 66
+            }
+          ]
+        },
+        "coverage": {
+          "uncovered_requirement_ids": [],
+          "passes": 1
+        }
+      },
+      "error": null
+    }
+  ]
+}

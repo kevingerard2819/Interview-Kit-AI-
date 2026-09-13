@@ -21,6 +21,9 @@ const QuestionSchema = new Schema({
   prompt: { type: String, required: true },
   answer_outline: { type: String, required: true },
   difficulty: { type: Number, enum: [1, 2, 3], required: true },
+  interview_stage: { type: String },
+  source_forum: { type: String },
+  forum_tip: { type: String },
   // UI Builder metadata for preserving edits and pinned questions
   is_custom: { type: Boolean, default: false },
   is_pinned: { type: Boolean, default: false },
@@ -64,7 +67,18 @@ const KitSchema = new Schema<IKitDocument>({
   company_brief: {
     summary: { type: String, required: true },
     what_they_do: { type: String, required: true },
-    sources: [{ type: String }]
+    sources: [{ type: String }],
+    public_discussion: {
+      searched: { type: Boolean, default: false },
+      found: { type: Boolean, default: false },
+      summary: { type: String, default: '' },
+      reported_rounds: [{ type: String }],
+      rounds_source: { type: String, default: 'auto_scanned' },
+      interview_difficulty_rating: { type: String },
+      key_focus_areas: [{ type: String }],
+      candidate_tips: [{ type: String }],
+      sources: [{ type: String }]
+    }
   },
   role: {
     title: { type: String, required: true },

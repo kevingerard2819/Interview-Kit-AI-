@@ -1,0 +1,21 @@
+services:
+  # Backend Express Server
+  - type: web
+    name: trao-interview-prep-server
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build:server
+    startCommand: node dist/server/src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CLIENT_URL
+        value: "*"

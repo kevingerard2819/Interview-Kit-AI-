@@ -1,4 +1,4 @@
-import { Kit, BatchCaseInput } from '../../../shared/types';
+import { Kit, BatchCaseInput, Question } from '../../../shared/types';
 import { crawlCompanySite } from '../crawler/crawler';
 import { extractRequirementsFromJD } from './extract';
 import { synthesizeCompanyResearch } from './research';
@@ -40,6 +40,7 @@ export async function runPrepKitPipeline(
     jd: string;
     company_url: string;
     days: number;
+    custom_rounds?: string[];
   },
   options: PipelineOptions = {}
 ): Promise<Kit> {
@@ -54,9 +55,20 @@ export async function runPrepKitPipeline(
   const researchedAt = new Date().toISOString();
   const jdChars = (input.jd || '').length;
 
-  // Step 1: Crawl company website (tolerant to 404, SSRF, local hosts)
-  notify('crawling', `Crawling company site at ${input.company_url}...`, 15);
-  const crawlResult = await crawlCompanySite(input.company_url);
+  const rawCustomRounds = Array.isArray(input.custom_rounds) ? input.custom_rounds : [];
+  const formattedCustomRounds = rawCustomRounds
+    .map(r => String(r || '').trim())
+    .filter(r => r.length > 0)
+    .map((r, i) => /^round\s*\d+/i.test(r) ? r : `Round ${i + 1}: ${r}`);
+
+  const hasCustomRounds = formattedCustomRounds.length > 0;
+
+  // Step 1 & 2: Crawl company website & extract requirements concurrently
+  notify('crawling', `Researching ${input.company_url} and analyzing job requirements...`, 25);
+  const [crawlResult, roleInfo] = await Promise.all([
+    crawlCompanySite(input.company_url),
+    extractRequirementsFromJD(input.jd, llm)
+  ]);
 
   // Infer company name from title, url, or fallback
   let inferredCompanyName = 'Company';
@@ -72,13 +84,28 @@ export async function runPrepKitPipeline(
     }
   }
 
-  // Step 2: Extract requirements from Job Description
-  notify('extracting', 'Extracting must-have and nice-to-have requirements from job description...', 30);
-  const roleInfo = await extractRequirementsFromJD(input.jd, llm);
-
   // Step 3: Synthesize company research
   notify('researching', 'Synthesizing company brief and hiring practices...', 45);
   const companyBrief = await synthesizeCompanyResearch(input.company_url, crawlResult, llm);
+
+  if (hasCustomRounds) {
+    companyBrief.public_discussion = {
+      searched: true,
+      found: true,
+      rounds_source: 'user_specified',
+      reported_rounds: formattedCustomRounds,
+      summary: `Candidate configured a tailored ${formattedCustomRounds.length}-round interview loop: ${formattedCustomRounds.join(', ')}. Question bank, preparation sequence, and study schedule are directly calibrated to these stages.`,
+      interview_difficulty_rating: companyBrief.public_discussion?.interview_difficulty_rating || '3.5 / 5.0 (Custom Candidate Loop)',
+      key_focus_areas: companyBrief.public_discussion?.key_focus_areas || ['Targeted Round Mastery', 'Core Problem Solving', 'STAR Behavioral Alignment'],
+      candidate_tips: companyBrief.public_discussion?.candidate_tips || [
+        'Focus preparation according to your configured interview sequence.',
+        'Practice live coding and system design under realistic time constraints.'
+      ],
+      sources: companyBrief.public_discussion?.sources || [input.company_url]
+    };
+  } else if (companyBrief.public_discussion) {
+    companyBrief.public_discussion.rounds_source = 'auto_scanned';
+  }
 
   // Step 4: Generate initial draft questions and flashcards
   notify('generating_draft', 'Generating initial question bank and study flashcards...', 60);
@@ -87,7 +114,11 @@ export async function runPrepKitPipeline(
     inferredCompanyName,
     roleInfo.requirements,
     companyBrief.summary,
-    llm
+    llm,
+    {
+      ...crawlResult,
+      customRounds: hasCustomRounds ? formattedCustomRounds : undefined
+    }
   );
 
   let currentQuestions = [...draft.questions];
@@ -109,12 +140,29 @@ export async function runPrepKitPipeline(
       roleInfo.title,
       missingReqs,
       currentQuestions.length + 1,
+      currentQuestions,
       llm
     );
 
     currentQuestions = [...currentQuestions, ...gapQuestions];
     coverageResult = checkCoverage(roleInfo.requirements, currentQuestions);
   }
+
+  // Deduplicate any repeated questions (by prompt text similarity) and re-index IDs cleanly
+  const uniqueQuestions: Question[] = [];
+  const seenTexts = new Set<string>();
+
+  for (const q of currentQuestions) {
+    const key = q.prompt.toLowerCase().replace(/[^a-z0-9]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!seenTexts.has(key)) {
+      seenTexts.add(key);
+      uniqueQuestions.push({
+        ...q,
+        id: `q${uniqueQuestions.length + 1}`
+      });
+    }
+  }
+  currentQuestions = uniqueQuestions;
 
   const coverage = buildCoverageObject(roleInfo.requirements, currentQuestions, passes);
 

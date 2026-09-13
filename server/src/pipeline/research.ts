@@ -29,9 +29,10 @@ export async function synthesizeCompanyResearch(
   const homepageText = crawlResult.homepage.cleanText.slice(0, 3000);
   const hiringText = crawlResult.hiringPage ? crawlResult.hiringPage.cleanText.slice(0, 3000) : 'None discovered on site.';
   const aboutText = crawlResult.aboutPage ? crawlResult.aboutPage.cleanText.slice(0, 3000) : 'None discovered on site.';
+  const publicDiscussionSummary = crawlResult.publicDiscussion?.summary || 'No public interview discussions discoverable.';
 
   const prompt = `You are an honest company research analyst.
-Summarize the following retrieved webpage content for an interview candidate.
+Summarize the following retrieved webpage content and public discussions for an interview candidate.
 
 RETRIEVED CONTENT:
 Homepage:
@@ -43,27 +44,54 @@ ${aboutText}
 Hiring / Careers / Process:
 ${hiringText}
 
+Public Discussion / Community Reports:
+${publicDiscussionSummary}
+
 STRICT HONESTY RULES:
 1. Summarize ONLY what is verified in the retrieved text above.
-2. If little or no information is provided about what they do or their hiring process, explicitly state so. DO NOT invent fake products, funding, or interview steps.
-3. Output the result in this JSON structure:
+2. If little or no information is provided about what they do or their hiring process, explicitly state so.
+3. If public discussion of the company turns up nothing at all, state honestly that no verifiable candidate interview threads were discovered rather than fabricating interview rounds.
+4. DO NOT invent fake products, funding, or interview steps.
+5. Output the result in this JSON structure:
 {
-  "summary": "High-level overview of the company, mission, and hiring context",
+  "summary": "High-level overview of the company, mission, hiring context, and public discussion status",
   "what_they_do": "Clear description of their products, services, or domain"
 }`;
 
   try {
     const res = await llmClient.generateJson<{ summary: string; what_they_do: string }>(prompt);
     return {
-      summary: res.summary || `Company based at ${companyUrl}`,
+      summary: res.summary || `Company based at ${companyUrl}. ${publicDiscussionSummary}`,
       what_they_do: res.what_they_do || 'Information not explicitly detailed on retrieved pages.',
-      sources
+      sources,
+      public_discussion: crawlResult.publicDiscussion ? {
+        searched: crawlResult.publicDiscussion.searched,
+        found: crawlResult.publicDiscussion.found,
+        summary: crawlResult.publicDiscussion.summary,
+        reported_rounds: crawlResult.publicDiscussion.reportedRounds || [],
+        rounds_source: crawlResult.publicDiscussion.roundsSource || 'auto_scanned',
+        interview_difficulty_rating: crawlResult.publicDiscussion.interviewDifficultyRating || '3.2 / 5.0',
+        key_focus_areas: crawlResult.publicDiscussion.keyFocusAreas || [],
+        candidate_tips: crawlResult.publicDiscussion.candidateTips || [],
+        sources: crawlResult.publicDiscussion.sources || []
+      } : undefined
     };
   } catch (err) {
     return {
-      summary: `Company site crawled at ${companyUrl}`,
+      summary: `Company site crawled at ${companyUrl}. ${publicDiscussionSummary}`,
       what_they_do: 'Refer to source website for official company overview.',
-      sources
+      sources,
+      public_discussion: crawlResult.publicDiscussion ? {
+        searched: crawlResult.publicDiscussion.searched,
+        found: crawlResult.publicDiscussion.found,
+        summary: crawlResult.publicDiscussion.summary,
+        reported_rounds: crawlResult.publicDiscussion.reportedRounds || [],
+        rounds_source: crawlResult.publicDiscussion.roundsSource || 'auto_scanned',
+        interview_difficulty_rating: crawlResult.publicDiscussion.interviewDifficultyRating || '3.2 / 5.0',
+        key_focus_areas: crawlResult.publicDiscussion.keyFocusAreas || [],
+        candidate_tips: crawlResult.publicDiscussion.candidateTips || [],
+        sources: crawlResult.publicDiscussion.sources || []
+      } : undefined
     };
   }
 }
